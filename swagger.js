@@ -6,7 +6,7 @@ const doc = {
     description: 'Description'
   },
   host: 'cse341-project2-7osd.onrender.com',
-  schemes: ['http', 'https']
+  schemes: ['https']
 };
 
 const outputFile = './swagger-output.json';

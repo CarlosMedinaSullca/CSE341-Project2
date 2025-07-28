@@ -11,7 +11,7 @@ const swaggerDocument = require('./swagger-output.json');
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 let corsOptions = {
-    origin: ['http://localhost:8080', 'https://cse341-project2-7osd.onrender.com']
+    origin: ['https://cse341-project2-7osd.onrender.com', 'http://localhost:8080']
 }
 
 app
