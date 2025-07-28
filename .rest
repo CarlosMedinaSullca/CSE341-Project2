@@ -1,0 +1,32 @@
+// LOCAL HOST - Development
+### Get all contacts
+GET http://localhost:8080/users
+
+### Get a single contact by ID
+GET http://localhost:8080/users/688575940ffbf66b7eb4ea73
+
+
+### Create a new user
+POST http://localhost:8080/users
+Content-Type: application/json
+
+{
+    "username": "any",
+    "email": "any",
+    "password": "any",
+    "health_goals": "any",
+    "allergies": "any",
+    "dislikes": "any"
+}
+
+### Update a contact
+PUT http://localhost:8080/contacts/687fef38db0fe4043b9b39f9
+Content-Type: application/json
+
+{
+    "firstName": "Paulino",
+    "lastName": "Tordo",
+    "email": "p.tordoya@gmail.com",
+    "favoriteColor": "Pink",
+    "birthday": "30/03/1990"
+}
