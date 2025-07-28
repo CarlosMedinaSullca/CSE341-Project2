@@ -5,10 +5,14 @@
     "description": "Description",
     "version": "1.0.0"
   },
-  "host": "localhost:8080",
+  "host": [
+    "localhost:8080",
+    "cse341-project2-7osd.onrender.com"
+  ],
   "basePath": "/",
   "schemes": [
-    "http"
+    "http",
+    "https"
   ],
   "paths": {
     "/": {
