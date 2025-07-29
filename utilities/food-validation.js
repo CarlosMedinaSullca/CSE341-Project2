@@ -36,7 +36,7 @@ validate.addFoodRules = () => {
         body("common_allergens")
           .isArray()
           .withMessage("common_allergens must be an array")
-          .custom(arr => Array.isArray(arr) && (arr.length === 0 || arrevery(item => typeof item === 'string')))
+          .custom(arr => Array.isArray(arr) && (arr.length === 0 || arr.every(item => typeof item === 'string')))
           .withMessage('common_allergens must be an array of strings or empty'),
     ]
 }
