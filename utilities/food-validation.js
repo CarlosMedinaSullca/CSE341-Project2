@@ -33,11 +33,11 @@ validate.addFoodRules = () => {
         body("is_gluten_free")
           .isBoolean().withMessage("is_gluten_free must be boolean")
           .notEmpty().withMessage("is_gluten_free cannot be empty"),
-        body("allergies")
+        body("common_allergens")
           .isArray()
-          .withMessage("allergies must be an array")
+          .withMessage("common_allergens must be an array")
           .custom(arr => Array.isArray(arr) && (arr.length === 0 || arrevery(item => typeof item === 'string')))
-          .withMessage('allergies must be an array of strings or empty'),
+          .withMessage('common_allergens must be an array of strings or empty'),
     ]
 }
 
