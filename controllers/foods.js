@@ -69,27 +69,35 @@ const updateFood = async (req, res) => {
         is_gluten_free: req.body.is_gluten_free,
         common_allergens: req.body.common_allergens
     };
-  const response = await mongodb
-    .getDb()
-    .db()
-    .collection('foods')
-    .replaceOne({ _id: foodId }, food);
-  console.log(response);
-  if (response.modifiedCount > 0) {
-    res.status(204).send();
-  } else {
-    res.status(500).json(response.error || 'Some error occurred while updating the food.');
-  }
+    try {
+      const response = await mongodb
+      .getDb()
+      .db()
+      .collection('foods')
+      .replaceOne({ _id: foodId }, food);
+      console.log(response);
+      if (response.modifiedCount > 0) {
+        res.status(204).send();
+      } else {
+        res.status(500).json(response.error || 'Some error occurred while updating the food.');
+      }
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+
 };
 
 const deleteFood = async (req, res) => {
   const foodId = new ObjectId(req.params.id);
-  const response = await mongodb.getDb().db().collection('foods').remove({ _id: foodId }, true);
-  console.log(response);
-  if (response.deletedCount > 0) {
-    res.status(204).send();
-  } else {
-    res.status(500).json(response.error || 'Some error occurred while deleting the food.');
+  try {
+    const response = await mongodb.getDb().db().collection('foods').remove({ _id: foodId }, true);console.log(response);
+    if (response.deletedCount > 0) {
+      res.status(204).send();
+    } else {
+      res.status(500).json(response.error || 'Some error occurred while deleting the food.');
+    }
+  } catch(error) {
+    res.status(500).json({ message: error.message });
   }
 };
 

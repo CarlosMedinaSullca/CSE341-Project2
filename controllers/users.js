@@ -37,12 +37,16 @@ const createUser = async(req, res) => {
         allergies: req.body.allergies,
         dislikes: req.body.dislikes
     };
+    try {
+      const response = await mongodb.getDb().db().collection('users').insertOne(user);
+      if (response.acknowledged) {
+          res.status(201).json(response);
+      } else {
+          res.status(500).json(response.error || 'Some error occurred while creating the contact.');
+      }
 
-    const response = await mongodb.getDb().db().collection('users').insertOne(user);
-    if (response.acknowledged) {
-        res.status(201).json(response);
-    } else {
-        res.status(500).json(response.error || 'Some error occurred while creating the contact.');
+    } catch(error) {
+      res.status(500).json({ message: error.message });
     }
 }
 
@@ -57,28 +61,38 @@ const updateUser = async (req, res) => {
         allergies: req.body.allergies,
         dislikes: req.body.dislikes
     };
-  const response = await mongodb
-    .getDb()
-    .db()
-    .collection('users')
-    .replaceOne({ _id: userId }, user);
-  console.log(response);
-  if (response.modifiedCount > 0) {
-    res.status(204).send();
-  } else {
-    res.status(500).json(response.error || 'Some error occurred while updating the user.');
-  }
+    try {
+      const response = await mongodb
+        .getDb()
+        .db()
+        .collection('users')
+        .replaceOne({ _id: userId }, user);
+      console.log(response);
+      if (response.modifiedCount > 0) {
+        res.status(204).send();
+      } else {
+        res.status(500).json(response.error || 'Some error occurred while updating the user.');
+      }
+    } catch(error) {
+      res.status(500).json({ message: error.message });      
+    }
+
 };
 
 const deleteUser = async (req, res) => {
   const userId = new ObjectId(req.params.id);
-  const response = await mongodb.getDb().db().collection('users').remove({ _id: userId }, true);
-  console.log(response);
-  if (response.deletedCount > 0) {
-    res.status(204).send();
-  } else {
-    res.status(500).json(response.error || 'Some error occurred while deleting the user.');
+  try {
+    const response = await mongodb.getDb().db().collection('users').remove({ _id: userId }, true);
+    console.log(response);
+    if (response.deletedCount > 0) {
+      res.status(204).send();
+    } else {
+      res.status(500).json(response.error || 'Some error occurred while deleting the user.');
+    }
+  } catch(error) {
+    res.status(500).json({ message: error.message });      
   }
+
 };
 
 
