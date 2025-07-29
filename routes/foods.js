@@ -18,6 +18,6 @@ router.put('/:id',
     validate.addFoodvalidation,
     foods.updateFood);
 
-router.delete('/id', foods.deleteFood);
+router.delete('/:id', foods.deleteFood);
 
 module.exports = router;

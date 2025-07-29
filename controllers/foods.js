@@ -90,7 +90,8 @@ const updateFood = async (req, res) => {
 const deleteFood = async (req, res) => {
   const foodId = new ObjectId(req.params.id);
   try {
-    const response = await mongodb.getDb().db().collection('foods').remove({ _id: foodId }, true);console.log(response);
+    const response = await mongodb.getDb().db().collection('foods').remove({ _id: foodId }, true);
+    console.log(response);
     if (response.deletedCount > 0) {
       res.status(204).send();
     } else {

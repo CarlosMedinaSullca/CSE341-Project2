@@ -18,6 +18,6 @@ router.put('/:id',
     validate.addUservalidation,
     users.updateUser);
 
-router.delete('/id', users.deleteUser);
+router.delete('/:id', users.deleteUser);
 
 module.exports = router;
