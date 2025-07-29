@@ -154,11 +154,17 @@
             "description": "Internal Server Error"
           }
         }
-      }
-    },
-    "/users/id": {
+      },
       "delete": {
         "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "responses": {
           "204": {
             "description": "No Content"
@@ -320,11 +326,17 @@
             "description": "Internal Server Error"
           }
         }
-      }
-    },
-    "/foods/id": {
+      },
       "delete": {
         "description": "",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "responses": {
           "204": {
             "description": "No Content"
