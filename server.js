@@ -2,6 +2,11 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongodb = require('./db/connect');
+const passport = require('passport');
+const session = require('express-session');
+const GitHubStrategy = require('passport-github2').Strategy;
+const dotenv = require('dotenv');
+dotenv.config();
 
 const app = express();
 
@@ -17,12 +22,62 @@ let corsOptions = {
 app
   .use(cors(corsOptions))
   .use(bodyParser.json())
+  .use(session({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: true,
+  }))
+  .use(passport.initialize())
+  .use(passport.session())
   .use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     next();
   })
+  .use(cors({ methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH']}))
+  .use(cors({ origin: '*'}))
   .use('/', require('./routes'));
 
+passport.use(new GitHubStrategy({
+  clientID: process.env.GITHUB_CLIENT_ID,
+  clientSecret: process.env.GITHUB_CLIENT_SECRET,
+  callbackURL: process.env.CALLBACK_URL
+},
+function(accessToken, refreshToken, profile, done) {
+  // User.findOrCreate({ githubId: profile.id}, function (err, user) {
+    return done(null, profile);
+  // });
+}
+));
+
+passport.serializeUser((user, done) => {
+  done(null, {id: user.id, displayName: user.displayName, username: user.username});
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
+
+
+app.get('/github/callback', 
+  passport.authenticate('github', {
+  failureRedirect: '/api-docs'}),
+  (req, res) => {
+    req.session.user = req.user;
+    res.redirect('/');   
+  });
+
+
+
+app.get('/', (req, res) => {
+  if (req.isAuthenticated()) {
+    // `req.user` is now correctly populated by Passport's session middleware.
+    // We can confidently access its properties.
+    const userDisplayName = req.user.displayName || req.user.username || 'Anonymous User';
+    res.send(`Logged in as ${userDisplayName}`);
+  } else {
+    res.send('Logged out');
+  }
+});
 
 process.on('uncaughtException', (err, origin) => {
   console.log(process.stderr.fd, `Caught exception: ${err}\n` + `Exception origin: ${origin}`);
