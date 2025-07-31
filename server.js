@@ -50,34 +50,23 @@ function(accessToken, refreshToken, profile, done) {
 ));
 
 passport.serializeUser((user, done) => {
-  done(null, {id: user.id, displayName: user.displayName, username: user.username});
+  done(null, user);
 });
 
 passport.deserializeUser((user, done) => {
   done(null, user);
 });
 
+app.get('/', (req, res) => {res.send(req.session.user !== undefined ? `Logged in as ${req.session.user.displayName}` : 'Logged out' )});
 
-app.get('/github/callback', 
-  passport.authenticate('github', {
-  failureRedirect: '/api-docs'}),
+
+
+app.get('/github/callback', passport.authenticate('github', {
+  failureRedirect: '/api-docs', session: false}),
   (req, res) => {
     req.session.user = req.user;
     res.redirect('/');   
   });
-
-
-
-app.get('/', (req, res) => {
-  if (req.isAuthenticated()) {
-    // `req.user` is now correctly populated by Passport's session middleware.
-    // We can confidently access its properties.
-    const userDisplayName = req.user.displayName || req.user.username || 'Anonymous User';
-    res.send(`Logged in as ${userDisplayName}`);
-  } else {
-    res.send('Logged out');
-  }
-});
 
 process.on('uncaughtException', (err, origin) => {
   console.log(process.stderr.fd, `Caught exception: ${err}\n` + `Exception origin: ${origin}`);
