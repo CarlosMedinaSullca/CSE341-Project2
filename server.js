@@ -189,8 +189,13 @@ async function(accessToken, refreshToken, profile, done) {
 // }
 ));
 
+// passport.serializeUser((user, done) => {
+//   done(null, { id: user.id, displayName: user.displayName, username: user.username });
+// });
+
+
 passport.serializeUser((user, done) => {
-  done(null, { id: user.id, displayName: user.displayName, username: user.username });
+  done(null, user._id.toString());
 });
 
 passport.deserializeUser(async (id, done) => {
