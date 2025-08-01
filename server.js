@@ -44,62 +44,62 @@ passport.use(new GitHubStrategy({
   callbackURL: process.env.CALLBACK_URL
 },
 
-// async function(accessToken, refreshToken, profile, done) {
-//     try {
-//         const database = mongodb.getDb();
-//         const usersCollection = database.collection('appusers');
+async function(accessToken, refreshToken, profile, done) {
+    try {
+        const database = mongodb.getDb();
+        const usersCollection = database.db().collection('appusers');
 
-//         // Use findOneAndUpdate with upsert: true to find or create the user in one operation.
-//         const result = await usersCollection.findOneAndUpdate(
-//             { githubId: profile.id }, // Filter by githubId
-//             {
-//                 $set: {
-//                     username: profile.username,
-//                     displayName: profile.displayName || profile.username,
-//                     profileUrl: profile.profileUrl,
-//                     // Store other profile data as needed
-//                 }
-//             },
-//             {
-//                 upsert: true, // Create a new document if it doesn't exist
-//                 returnDocument: 'after' // Return the updated/newly created document
-//             }
-//         );
+        // Use findOneAndUpdate with upsert: true to find or create the user in one operation.
+        const result = await usersCollection.findOneAndUpdate(
+            { githubId: profile.id }, // Filter by githubId
+            {
+                $set: {
+                    username: profile.username,
+                    displayName: profile.displayName || profile.username,
+                    profileUrl: profile.profileUrl,
+                    // Store other profile data as needed
+                }
+            },
+            {
+                upsert: true, // Create a new document if it doesn't exist
+                returnDocument: 'after' // Return the updated/newly created document
+            }
+        );
 
-//         // The user document is in result.value
-//         return done(null, result.value);
+        // The user document is in result.value
+        return done(null, result.value);
 
-//     } catch (err) {
-//         return done(err, false);
-//     }
-// }
-function(accessToken, refreshToken, profile, done) {
-  // User.findOrCreate({ githubId: profile.id}, function (err, user) {
-    return done(null, profile);
-  // });
+    } catch (err) {
+        return done(err, false);
+    }
 }
+// function(accessToken, refreshToken, profile, done) {
+//   // User.findOrCreate({ githubId: profile.id}, function (err, user) {
+//     return done(null, profile);
+//   // });
+// }
 ));
 
 passport.serializeUser((user, done) => {
   done(null, { id: user.id, displayName: user.displayName, username: user.username });
 });
 
-// passport.deserializeUser(async (id, done) => {
-//     try {
-//         const database = mongodb.getDb();
-//         const usersCollection = database.collection('appusers');
-//         // Find the user by their _id using the ObjectId class
-//         const user = await usersCollection.findOne({ _id: new ObjectId(id) });
-//         done(null, user);
-//     } catch (err) {
-//         done(err, false);
-//     }
-// });
-
-
-passport.deserializeUser((user, done) => {
-  done(null, user);
+passport.deserializeUser(async (id, done) => {
+    try {
+        const database = mongodb.getDb().db();
+        const usersCollection = database.collection('appusers');
+        // Find the user by their _id using the ObjectId class
+        const user = await usersCollection.findOne({ _id: new ObjectId(id) });
+        done(null, user);
+    } catch (err) {
+        done(err, false);
+    }
 });
+
+
+// passport.deserializeUser((user, done) => {
+//   done(null, user);
+// });
 
 
 
