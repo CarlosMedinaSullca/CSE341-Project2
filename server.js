@@ -47,7 +47,7 @@ passport.use(new GitHubStrategy({
 async function(accessToken, refreshToken, profile, done) {
     try {
         const database = mongodb.getDb();
-        const usersCollection = database.db().collection('appusers');
+        const usersCollection = database.collection('appusers');
 
         // Use findOneAndUpdate with upsert: true to find or create the user in one operation.
         const result = await usersCollection.findOneAndUpdate(
@@ -86,7 +86,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser(async (id, done) => {
     try {
-        const database = mongodb.getDb().db();
+        const database = mongodb.getDb();
         const usersCollection = database.collection('appusers');
         // Find the user by their _id using the ObjectId class
         const user = await usersCollection.findOne({ _id: new ObjectId(id) });
