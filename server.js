@@ -5,7 +5,6 @@ const mongodb = require('./db/connect');
 const passport = require('passport');
 const session = require('express-session');
 const GitHubStrategy = require('passport-github2').Strategy;
-const { ObjectId } = require('mongodb'); 
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -21,12 +20,6 @@ let corsOptions = {
 }
 
 
-// Create a new session store in MongoDB
-const store = new MongoDBStore({
-  uri: process.env.MONGODB_URI, // Ensure this is in your .env file
-  collection: 'sessions', // Name of the collection for sessions
-});
-
 app
   .use(cors(corsOptions))
   .use(bodyParser.json())
@@ -34,10 +27,6 @@ app
     secret: 'secret',
     resave: false,
     saveUninitialized: false,
-    store: store,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24 * 7 // 1 week
-    }
   }))
   .use(passport.initialize())
   .use(passport.session())
@@ -50,102 +39,7 @@ app
   .use('/', require('./routes'));
 
 
-process.on('uncaughtException', (err, origin) => {
-  console.log(process.stderr.fd, `Caught exception: ${err}\n` + `Exception origin: ${origin}`);
-});
 
-// passport.use(new GitHubStrategy({
-//   clientID: process.env.GITHUB_CLIENT_ID,
-//   clientSecret: process.env.GITHUB_CLIENT_SECRET,
-//   callbackURL: process.env.CALLBACK_URL
-// },
-
-// async function(accessToken, refreshToken, profile, done) {
-//     try {
-//         const database = mongodb.getDb();
-//         const usersCollection = database.collection('appusers');
-
-//         // Use findOneAndUpdate with upsert: true to find or create the user in one operation.
-//         const result = await usersCollection.findOneAndUpdate(
-//             { githubId: profile.id }, // Filter by githubId
-//             {
-//                 $set: {
-//                     username: profile.username,
-//                     displayName: profile.displayName || profile.username,
-//                     profileUrl: profile.profileUrl,
-//                     // Store other profile data as needed
-//                 }
-//             },
-//             {
-//                 upsert: true, // Create a new document if it doesn't exist
-//                 returnDocument: 'after' // Return the updated/newly created document
-//             }
-//         );
-
-//         // The user document is in result.value
-//         return done(null, result.value);
-
-//     } catch (err) {
-//         return done(err, false);
-//     }
-// }
-// // function(accessToken, refreshToken, profile, done) {
-// //   // User.findOrCreate({ githubId: profile.id}, function (err, user) {
-// //     return done(null, profile);
-// //   // });
-// // }
-// ));
-
-// passport.serializeUser((user, done) => {
-//   done(null, { id: user.id, displayName: user.displayName, username: user.username });
-// });
-
-// passport.deserializeUser(async (id, done) => {
-//     try {
-//         const database = mongodb.getDb();
-//         const usersCollection = database.collection('appusers');
-//         // Find the user by their _id using the ObjectId class
-//         const user = await usersCollection.findOne({ _id: new ObjectId(id) });
-//         done(null, user);
-//     } catch (err) {
-//         done(err, false);
-//     }
-// });
-
-
-// // passport.deserializeUser((user, done) => {
-// //   done(null, user);
-// // });
-
-
-
-// app.get('/github/callback', 
-//   passport.authenticate('github', {
-//     failureRedirect: '/api-docs'}),
-//   (req, res) => {
-//     req.session.user = req.user;
-//     res.redirect('/');   
-// });
-
-// app.get('/', (req, res) => {
-//   if (req.isAuthenticated()) {
-//     // `req.user` is now correctly populated by Passport's session middleware.
-//     // We can confidently access its properties.
-//     const userDisplayName = req.user.displayName || req.user.username || 'Anonymous User';
-//     res.send(`Logged in as ${userDisplayName}`);
-//   } else {
-//     res.send('Logged out');
-//   }
-// });
-
-
-
-
-  const port = process.env.PORT || 8080;
-  mongodb.initDb((err) => {
-    if (err) {
-        console.log(err);
-    } else {
 
 passport.use(new GitHubStrategy({
   clientID: process.env.GITHUB_CLIENT_ID,
@@ -153,67 +47,21 @@ passport.use(new GitHubStrategy({
   callbackURL: process.env.CALLBACK_URL
 },
 
-async function(accessToken, refreshToken, profile, done) {
-    try {
-        const database = mongodb.getDb();
-        const usersCollection = database.collection('appusers');
-
-        // Use findOneAndUpdate with upsert: true to find or create the user in one operation.
-        const result = await usersCollection.findOneAndUpdate(
-            { githubId: profile.id }, // Filter by githubId
-            {
-                $set: {
-                    username: profile.username,
-                    displayName: profile.displayName || profile.username,
-                    profileUrl: profile.profileUrl,
-                    // Store other profile data as needed
-                }
-            },
-            {
-                upsert: true, // Create a new document if it doesn't exist
-                returnDocument: 'after' // Return the updated/newly created document
-            }
-        );
-
-        // The user document is in result.value
-        return done(null, result.value);
-
-    } catch (err) {
-        return done(err, false);
-    }
+function(accessToken, refreshToken, profile, done) {
+  // User.findOrCreate({ githubId: profile.id}, function (err, user) {
+    return done(null, profile);
+  // });
 }
-// function(accessToken, refreshToken, profile, done) {
-//   // User.findOrCreate({ githubId: profile.id}, function (err, user) {
-//     return done(null, profile);
-//   // });
-// }
 ));
 
-// passport.serializeUser((user, done) => {
-//   done(null, { id: user.id, displayName: user.displayName, username: user.username });
-// });
-
-
 passport.serializeUser((user, done) => {
-  done(null, user._id.toString());
-});
-
-passport.deserializeUser(async (id, done) => {
-    try {
-        const database = mongodb.getDb();
-        const usersCollection = database.collection('appusers');
-        // Find the user by their _id using the ObjectId class
-        const user = await usersCollection.findOne({ _id: new ObjectId(id) });
-        done(null, user);
-    } catch (err) {
-        done(err, false);
-    }
+  done(null, { id: user.id, displayName: user.displayName, username: user.username });
 });
 
 
-// passport.deserializeUser((user, done) => {
-//   done(null, user);
-// });
+passport.deserializeUser((user, done) => {
+  done(null, user);
+});
 
 
 
@@ -235,18 +83,18 @@ app.get('/', (req, res) => {
     res.send('Logged out');
   }
 });
+
+process.on('uncaughtException', (err, origin) => {
+  console.log(process.stderr.fd, `Caught exception: ${err}\n` + `Exception origin: ${origin}`);
+});
+
+
+const port = process.env.PORT || 8080;
+mongodb.initDb((err) => {
+    if (err) {
+        console.log(err);
+    } else {
         app.listen(port);
         console.log(`Connected to DB and listening on port ${port}`);
     }
-  });
-
-
-  //   const port = process.env.PORT || 8080;
-  // mongodb.initDb((err) => {
-  //   if (err) {
-  //       console.log(err);
-  //   } else {
-  //       app.listen(port);
-  //       console.log(`Connected to DB and listening on port ${port}`);
-  //   }
-  // });
+});
