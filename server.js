@@ -23,18 +23,12 @@ app
     origin: ['https://cse341-project2-7osd.onrender.com', 'http://localhost:8080'],
     methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true // if you need to support cookies/sessions across origins
   }))
   .use(bodyParser.json())
   .use(session({
     secret: 'secret',
     resave: false,
     saveUninitialized: false,
-    cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
   }))
   .use(passport.initialize())
   .use(passport.session())
@@ -61,23 +55,13 @@ function(accessToken, refreshToken, profile, done) {
 }
 ));
 
-
-
-
-
 passport.serializeUser((user, done) => {
   done(null, { id: user.id, displayName: user.displayName, username: user.username });
 });
 
-
-
-
-
 passport.deserializeUser((user, done) => {
   done(null, user);
 });
-
-
 
 app.get('/github/callback', 
   passport.authenticate('github', {
@@ -86,9 +70,6 @@ app.get('/github/callback',
     req.session.user = req.user;
     res.redirect('/');   
 });
-
-
-
 
 
 app.get('/', (req, res) => {
@@ -103,8 +84,6 @@ app.get('/', (req, res) => {
 });
 
 
-
-
 process.on('uncaughtException', (err, origin) => {
   console.log(process.stderr.fd, `Caught exception: ${err}\n` + `Exception origin: ${origin}`);
 });
@@ -115,8 +94,6 @@ mongodb.initDb((err) => {
     if (err) {
         console.log(err);
     } else {
-      const db = mongodb.getDb().db();
-      db.collection('appusers').createIndex({ githubId: 1 }, { unique: true });
       app.listen(port);
       console.log(`Connected to DB and listening on port ${port}`);
     }
